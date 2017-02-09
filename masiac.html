@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5图片马赛克功能</title>
+    <style type="text/css">
+        #masiac {
+            width: 60px;
+            height: 25px;
+            line-height: 25px;
+            text-align: center;
+            color: white;
+            display: block;
+            background: #3385ff;
+            border-radius: 2px;
+        }
+        .w_operation {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+        }
+        .w_operation .can {
+            overflow: auto;
+            height: 100%;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            top: 0;
+            z-index: 1041;
+        }
+        .w_operation .can canvas{
+            position: absolute;
+            top:0;
+            /* left: 50%; */
+        }
+        .w_operation .imgs {
+            height: 220px;
+            overflow: hidden;
+            overflow-x: scroll;
+            white-space: nowrap;
+        }
+        .w_operation .imgs span {
+            display: inline-block;
+            margin: 10px;
+            border: 1px solid transparent;
+            border-radius: 2px;
+        }
+        .w_operation .imgs span:hover, .w_operation .imgs span.active{
+            /* border-color: #3385ff; */
+            border-color: red;
+        }
+        .w_operation .imgs span img {
+            height: 200px;
+        }
+        .w_operation .handle {
+            display: none;
+        }
+    </style>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+</head>
+
+<body>
+    <div class="w_operation">
+        <span>马赛克粒度</span>
+        <input type="range" min="4" max="100" value="14" id="range" />
+        <span id="output">14</span>
+        <span>画笔大小</span>
+        <input type="range" min="2" max="30" value="10" id="pen" />
+        <span id="penRelease">10</span>
+        <a href="javascript:;" id="masiac">完成</a> 
+        <div class="can"></div>
+        <div class="imgs">
+            <span class="active"><img src="http://static.1sapp.com/image/sp/2016/12/01/583f84ae55a86.jpg" alt=""></span>
+            <span><img src="http://static.1sapp.com/image/20170206/43/434335847b62424eec1155139a77f6f0b1f69db5.jpg" alt=""></span>
+            <span><img src="http://static.1sapp.com/image/20170206/09/0962758fd3184bcce7f9c18393dc8eeef6f50400.jpg" alt=""></span>
+            <span><img src="http://static.1sapp.com/image/20170206/16/1605faaf846800ae9f3adbe165ab90d85150ce6e.jpg" alt=""></span>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/masiac.js"></script>
+    <script type="text/javascript"> 
+    // 初始化支持传入参数
+    // {
+    //     masiacCanvas: 全图马赛克canvas,不传入参数会自动生成,传入参数时，不可以调用insert
+    //     imgCanvas: 打码用canvas,不传入参数会自动生成,传入参数时，不可以调用insert
+    //     $canvasContainer: 目标插入元素，需传入jqeury对象
+    //     resolution: 默认马赛克颗粒大小
+    //     penSize: 默认画笔大小
+    // }
+    // 目前提供方法 
+    // init： 初始化插件。分离出来是为了方便批量操作，暂未开发, 参数为对象  $.imgMasiac('init', arguments);
+    // insert： 用于插入操作canvas到指定元素，参数为对象  $.imgMasiac('init', arguments);
+    // repaint： 用于重绘马赛克底图（调整），参数为数字  $.imgMasiac('repaint', arguments);
+    // penSetUp: 用于调整打码画笔大小，参数为数字  $.imgMasiac('penSetUp', arguments);
+    // revoke: 撤销一步操作，每次鼠标按下再释放记录一步，默认支持右键撤销 ，无参数  $.imgMasiac('revoke');
+    // merge: 用于导出生成的base64图片地址，无参数  $.imgMasiac('merge');
+    (function(){
+        var $img;
+        $('.w_operation .can').css({
+            'maxHeight': window.innerHeight - 220,
+            'maxWidth': window.innerWidth - 50
+        });
+        $('#range').on('change', function(event){
+            var res = parseInt( event.target.value, 10 );
+            res = Math.floor( res / 2 ) * 2;
+            res = Math.max( 4, Math.min( 100, res ) );
+            $('#output').text(res);
+            $img.imgMasiac('repaint', res);
+        });
+        $('#pen').on('change', function(event){
+            var res = parseInt( event.target.value, 10 );
+            res = Math.floor( res / 2 ) * 2;
+            res = Math.max( 4, Math.min( 100, res ) );
+            $('#penRelease').text(res);
+            $img.imgMasiac('penSetUp', res);
+        });
+        $('.imgs span').on('click', function(){
+            $('.imgs span').removeClass('active');
+            $(this).addClass('active');
+            $img = $(this).find('img');
+            $img.imgMasiac('insert', {$canvasContainer: $('.w_operation .can')});
+        });
+        $('#masiac').on('click', function(event){
+            var src = $img.imgMasiac('merge');
+            console.log(src);
+        });
+    })()
+              
+    </script>
+</body>
+
+</html>
